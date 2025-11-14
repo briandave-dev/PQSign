@@ -9,6 +9,34 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
+export interface RSAKeyPair {
+  publicKey: string;
+  privateKey: string;
+  algorithm: string;
+  securityLevel: string;
+  publicKeySize: number;
+  secretKeySize: number;
+  timestamp: string;
+  generationTime: number;
+}
+
+export interface RSASignature {
+  signature: string;
+  message: string;
+  algorithm: string;
+  signatureSize: number;
+  signingTime: number;
+}
+
+export interface RSAVerification {
+  isValid: boolean;
+  verificationTime: number;
+  details: {
+    confidence: string;
+    messageHash: string;
+  };
+}
+
 // ============================================================================
 // UTILITAIRES CRYPTOGRAPHIQUES DE BASE
 // ============================================================================
@@ -124,33 +152,7 @@ class CryptoUtils {
 // PURE TS RSA Implementation (Optimized for JavaScript)
 // ============================================================================
 
-export interface RSAKeyPair {
-  publicKey: string;
-  privateKey: string;
-  algorithm: string;
-  securityLevel: string;
-  publicKeySize: number;
-  secretKeySize: number;
-  timestamp: string;
-  generationTime: number;
-}
 
-export interface RSASignature {
-  signature: string;
-  message: string;
-  algorithm: string;
-  signatureSize: number;
-  signingTime: number;
-}
-
-export interface RSAVerification {
-  isValid: boolean;
-  verificationTime: number;
-  details: {
-    confidence: string;
-    messageHash: string;
-  };
-}
 
 export class RSA3072 {
   // Generate random BigInt in range [min, max)
@@ -481,48 +483,6 @@ export class RSA3072 {
   }
 }
 
-
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
-// class CryptoUtils {
-//   static randomBytes(length: number): Uint8Array {
-//     const bytes = new Uint8Array(length);
-//     crypto.getRandomValues(bytes);
-//     return bytes;
-//   }
-
-//   static bytesToHex(bytes: Uint8Array): string {
-//     return Array.from(bytes)
-//       .map(b => b.toString(16).padStart(2, '0'))
-//       .join('');
-//   }
-
-//   static async sha256(message: string): Promise<Uint8Array> {
-//     const msgBuffer = new TextEncoder().encode(message);
-//     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-//     return new Uint8Array(hashBuffer);
-//   }
-
-//   static modInverse(a: bigint, m: bigint): bigint {
-//     let [old_r, r] = [a, m];
-//     let [old_s, s] = [1n, 0n];
-
-//     while (r !== 0n) {
-//       const quotient = old_r / r;
-//       [old_r, r] = [r, old_r - quotient * r];
-//       [old_s, s] = [s, old_s - quotient * s];
-//     }
-
-//     return old_s < 0n ? old_s + m : old_s;
-//   }
-// }
-
-// ============================================================================
-// IMPLÉMENTATION ECDSA-P256 (Courbe elliptique secp256r1)
-// ============================================================================
-
-// Point class (outside of ECDSAP256 for cleaner syntax)
 class ECPoint {
   constructor(public x: bigint | null, public y: bigint | null) { }
 

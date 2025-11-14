@@ -28,7 +28,7 @@ export default function Navigation() {
       <nav className="container-safe flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-bold text-xl">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-sm font-bold">
-            PQ
+            GL
           </div>
           <span className="hidden sm:inline">Signature</span>
         </Link>
