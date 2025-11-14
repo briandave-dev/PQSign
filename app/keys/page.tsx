@@ -121,42 +121,60 @@ class CryptoUtils {
 }
 
 // ============================================================================
-// PURE TS RSA-3072 (for demonstration, use small primes for testing)
+// PURE TS RSA Implementation (Optimized for JavaScript)
 // ============================================================================
 
 export interface RSAKeyPair {
   publicKey: string;
   privateKey: string;
   algorithm: string;
+  securityLevel: string;
   publicKeySize: number;
   secretKeySize: number;
+  timestamp: string;
   generationTime: number;
 }
 
 export interface RSASignature {
   signature: string;
+  message: string;
+  algorithm: string;
+  signatureSize: number;
   signingTime: number;
 }
 
 export interface RSAVerification {
   isValid: boolean;
   verificationTime: number;
+  details: {
+    confidence: string;
+    messageHash: string;
+  };
 }
 
 export class RSA3072 {
   // Generate random BigInt in range [min, max)
   static randomBigInt(min: bigint, max: bigint): bigint {
     const range = max - min;
-    const randBytes = crypto.getRandomValues(new Uint8Array(16));
-    const randHex = Array.from(randBytes)
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-    const rand = BigInt('0x' + randHex);
-    return min + (rand % range);
+    const bits = range.toString(2).length;
+    const bytes = Math.ceil(bits / 8);
+    
+    while (true) {
+      const randBytes = crypto.getRandomValues(new Uint8Array(bytes));
+      let rand = 0n;
+      for (let i = 0; i < randBytes.length; i++) {
+        rand = (rand << 8n) | BigInt(randBytes[i]);
+      }
+      rand = rand % range;
+      const result = min + rand;
+      if (result < max) return result;
+    }
   }
 
-  // GCD
+  // GCD using Euclidean algorithm
   static gcd(a: bigint, b: bigint): bigint {
+    a = a < 0n ? -a : a;
+    b = b < 0n ? -b : b;
     while (b !== 0n) {
       const t = b;
       b = a % b;
@@ -165,54 +183,101 @@ export class RSA3072 {
     return a;
   }
 
-  // Modular inverse
+  // Extended Euclidean algorithm for modular inverse
   static modInverse(e: bigint, phi: bigint): bigint {
-    let [a, b] = [phi, e];
-    let [x0, x1] = [0n, 1n];
-    while (b > 0n) {
-      const q = a / b;
-      [a, b] = [b, a % b];
-      [x0, x1] = [x1, x0 - q * x1];
+    let [old_r, r] = [e, phi];
+    let [old_s, s] = [1n, 0n];
+
+    while (r !== 0n) {
+      const quotient = old_r / r;
+      [old_r, r] = [r, old_r - quotient * r];
+      [old_s, s] = [s, old_s - quotient * s];
     }
-    return x0 < 0n ? x0 + phi : x0;
+
+    // Ensure positive result
+    return old_s < 0n ? old_s + phi : old_s;
   }
 
-  // Modular exponentiation
+  // Modular exponentiation using square-and-multiply
   static modPow(base: bigint, exp: bigint, mod: bigint): bigint {
+    if (mod === 1n) return 0n;
     let result = 1n;
     base = base % mod;
+    
     while (exp > 0n) {
-      if (exp % 2n === 1n) result = (result * base) % mod;
-      exp = exp / 2n;
+      if (exp % 2n === 1n) {
+        result = (result * base) % mod;
+      }
+      exp = exp >> 1n;
       base = (base * base) % mod;
     }
+    
     return result;
   }
 
-  // Simple prime check for BigInt (inefficient)
-  static isPrime(n: bigint): boolean {
+  // Miller-Rabin primality test (probabilistic but much faster)
+  static isProbablyPrime(n: bigint, iterations: number = 10): boolean {
     if (n < 2n) return false;
     if (n === 2n || n === 3n) return true;
     if (n % 2n === 0n) return false;
 
-    // iterate from 3 to sqrt(n) by trial division (integer arithmetic)
-    let i = 3n;
-    while (i * i <= n) {
-      if (n % i === 0n) return false;
-      i += 2n;
+    // Write n-1 as 2^r * d
+    let d = n - 1n;
+    let r = 0n;
+    while (d % 2n === 0n) {
+      d /= 2n;
+      r += 1n;
+    }
+
+    // Witness loop
+    witnessLoop: for (let i = 0; i < iterations; i++) {
+      const a = this.randomBigInt(2n, n - 2n);
+      let x = this.modPow(a, d, n);
+
+      if (x === 1n || x === n - 1n) continue;
+
+      for (let j = 0n; j < r - 1n; j++) {
+        x = this.modPow(x, 2n, n);
+        if (x === n - 1n) continue witnessLoop;
+      }
+      return false;
     }
     return true;
   }
 
-
-  // Generate small random prime for testing
-  static generatePrime(bits: number = 16): bigint {
+  // Generate random prime of specified bit length
+  static generatePrime(bits: number): bigint {
     const min = 1n << BigInt(bits - 1);
     const max = (1n << BigInt(bits)) - 1n;
-    while (true) {
-      const p = this.randomBigInt(min, max);
-      if (this.isPrime(p)) return p;
+    
+    let attempts = 0;
+    const maxAttempts = 1000;
+    
+    while (attempts < maxAttempts) {
+      attempts++;
+      // Generate random odd number
+      let candidate = this.randomBigInt(min, max);
+      if (candidate % 2n === 0n) candidate += 1n;
+      
+      // Quick checks for small primes
+      let hasSmallFactor = false;
+      const smallPrimes = [3n, 5n, 7n, 11n, 13n, 17n, 19n, 23n, 29n, 31n, 37n, 41n, 43n, 47n];
+      for (const p of smallPrimes) {
+        if (candidate % p === 0n && candidate !== p) {
+          hasSmallFactor = true;
+          break;
+        }
+      }
+      
+      if (hasSmallFactor) continue;
+      
+      // Miller-Rabin test
+      if (this.isProbablyPrime(candidate, 10)) {
+        return candidate;
+      }
     }
+    
+    throw new Error('Failed to generate prime after ' + maxAttempts + ' attempts');
   }
 
   // SHA-256 helper
@@ -226,67 +291,193 @@ export class RSA3072 {
     return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
+  static hexToBytes(hex: string): Uint8Array {
+    const bytes = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < hex.length; i += 2) {
+      bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+    }
+    return bytes;
+  }
+
+  // PKCS#1 v1.5 padding for signing
+  static addPKCS1Padding(hash: Uint8Array, keyLength: number): bigint {
+    // DigestInfo for SHA-256
+    const digestInfo = new Uint8Array([
+      0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86,
+      0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05,
+      0x00, 0x04, 0x20
+    ]);
+
+    const tLen = digestInfo.length + hash.length;
+    const psLen = keyLength - tLen - 3;
+
+    if (psLen < 8) {
+      throw new Error('Key too short for PKCS#1 padding');
+    }
+
+    // Create padded message: 0x00 || 0x01 || PS || 0x00 || DigestInfo || Hash
+    const padded = new Uint8Array(keyLength);
+    padded[0] = 0x00;
+    padded[1] = 0x01;
+    
+    // PS is 0xFF bytes
+    for (let i = 2; i < 2 + psLen; i++) {
+      padded[i] = 0xff;
+    }
+    
+    padded[2 + psLen] = 0x00;
+    padded.set(digestInfo, 2 + psLen + 1);
+    padded.set(hash, 2 + psLen + 1 + digestInfo.length);
+
+    // Convert to BigInt
+    let result = 0n;
+    for (let i = 0; i < padded.length; i++) {
+      result = (result << 8n) | BigInt(padded[i]);
+    }
+    
+    return result;
+  }
+
   // ===============================================
-  // Key generation
+  // Key generation (using 512-bit primes for ~1024-bit RSA)
+  // This is manageable in JavaScript while still being demonstrative
   // ===============================================
-  static async generateKeyPair(bits: number = 32): Promise<RSAKeyPair> {
+  static async generateKeyPair(): Promise<RSAKeyPair> {
     const start = performance.now();
 
-    const p = this.generatePrime(bits / 2);
-    const q = this.generatePrime(bits / 2);
+    // Generate two 512-bit primes for ~1024-bit modulus
+    // This is a good balance between security demonstration and JS performance
+    console.log('Generating prime p...');
+    const p = this.generatePrime(512);
+    
+    console.log('Generating prime q...');
+    const q = this.generatePrime(512);
+    
     const n = p * q;
     const phi = (p - 1n) * (q - 1n);
+    
+    // Standard public exponent
     const e = 65537n;
+    
+    // Ensure e and phi are coprime
+    if (this.gcd(e, phi) !== 1n) {
+      throw new Error('e and phi are not coprime');
+    }
+    
+    console.log('Computing private exponent...');
     const d = this.modInverse(e, phi);
 
-    const publicKey = { n: n.toString(16), e: e.toString(16) };
-    const privateKey = { n: n.toString(16), d: d.toString(16), p: p.toString(16), q: q.toString(16) };
+    const publicKey = { 
+      n: n.toString(16), 
+      e: e.toString(16) 
+    };
+    
+    const privateKey = { 
+      n: n.toString(16), 
+      d: d.toString(16), 
+      p: p.toString(16), 
+      q: q.toString(16) 
+    };
 
     const end = performance.now();
 
     return {
       publicKey: JSON.stringify(publicKey),
       privateKey: JSON.stringify(privateKey),
-      algorithm: 'RSA',
+      algorithm: 'RSA-1024',
+      securityLevel: 'Niveau 2 (1024 bits - Démonstration)',
       publicKeySize: JSON.stringify(publicKey).length,
       secretKeySize: JSON.stringify(privateKey).length,
+      timestamp: new Date().toISOString(),
       generationTime: Math.round(end - start),
     };
   }
 
   // ===============================================
-  // Signing
+  // Signing with PKCS#1 v1.5 padding
   // ===============================================
   static async sign(message: string, privateKeyStr: string): Promise<RSASignature> {
     const start = performance.now();
+    
     const privateKey = JSON.parse(privateKeyStr);
     const n = BigInt('0x' + privateKey.n);
     const d = BigInt('0x' + privateKey.d);
 
+    // Get key length in bytes
+    const keyLength = Math.ceil(n.toString(2).length / 8);
+
+    // Hash the message
     const hash = await this.sha256(message);
-    const hashBigInt = BigInt('0x' + this.bytesToHex(hash));
-    const signature = this.modPow(hashBigInt, d, n);
+    
+    // Add PKCS#1 v1.5 padding
+    const paddedHash = this.addPKCS1Padding(hash, keyLength);
+
+    // Sign: signature = paddedHash^d mod n
+    const signature = this.modPow(paddedHash, d, n);
 
     const end = performance.now();
-    return { signature: signature.toString(16), signingTime: Math.round(end - start) };
+    
+    return { 
+      signature: signature.toString(16),
+      message: message,
+      algorithm: 'RSA-1024',
+      signatureSize: signature.toString(16).length,
+      signingTime: Math.round(end - start) 
+    };
   }
 
   // ===============================================
-  // Verification
+  // Verification with PKCS#1 v1.5 padding
   // ===============================================
-  static async verify(message: string, signatureStr: string, publicKeyStr: string): Promise<RSAVerification> {
+  static async verify(
+    message: string, 
+    signatureStr: string, 
+    publicKeyStr: string
+  ): Promise<RSAVerification> {
     const start = performance.now();
-    const publicKey = JSON.parse(publicKeyStr);
-    const n = BigInt('0x' + publicKey.n);
-    const e = BigInt('0x' + publicKey.e);
-    const signature = BigInt('0x' + signatureStr);
+    
+    try {
+      const publicKey = JSON.parse(publicKeyStr);
+      const n = BigInt('0x' + publicKey.n);
+      const e = BigInt('0x' + publicKey.e);
+      const signature = BigInt('0x' + signatureStr);
 
-    const decryptedHash = this.modPow(signature, e, n);
-    const hash = await this.sha256(message);
-    const hashBigInt = BigInt('0x' + this.bytesToHex(hash));
+      // Get key length in bytes
+      const keyLength = Math.ceil(n.toString(2).length / 8);
 
-    const end = performance.now();
-    return { isValid: decryptedHash === hashBigInt, verificationTime: Math.round(end - start) };
+      // Verify: decrypted = signature^e mod n
+      const decrypted = this.modPow(signature, e, n);
+
+      // Hash the message
+      const hash = await this.sha256(message);
+      
+      // Add PKCS#1 v1.5 padding to hash
+      const expectedPadded = this.addPKCS1Padding(hash, keyLength);
+
+      // Compare
+      const isValid = decrypted === expectedPadded;
+
+      const end = performance.now();
+      
+      return { 
+        isValid, 
+        verificationTime: Math.round(end - start),
+        details: {
+          confidence: isValid ? 'Signature valide - 100%' : 'Signature invalide',
+          messageHash: 'SHA-256 avec PKCS#1 v1.5'
+        }
+      };
+    } catch (error) {
+      const end = performance.now();
+      return {
+        isValid: false,
+        verificationTime: Math.round(end - start),
+        details: {
+          confidence: 'Erreur de vérification',
+          messageHash: 'SHA-256 avec PKCS#1 v1.5'
+        }
+      };
+    }
   }
 }
 
