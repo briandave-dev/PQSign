@@ -1,0 +1,61 @@
+{
+  "algorithms": [
+    {
+      "id": "dilithium",
+      "name": "CRYSTALS-Dilithium",
+      "shortName": "Dilithium",
+      "securityLevel": "Niveau 3",
+      "quantumResistant": true,
+      "publicKeySize": "1952 octets",
+      "secretKeySize": "4000 octets",
+      "signatureSize": "2420 octets",
+      "description": "Standard post-quantique du NIST pour les signatures numériques basé sur les réseaux euclidiens.",
+      "features": [
+        "Sécurité basée sur les réseaux (lattice)",
+        "Standardisé par le NIST (PQC)",
+        "Résistant aux attaques quantiques",
+        "Signatures déterministes",
+        "Vérification rapide"
+      ],
+      "color": "from-primary to-blue-600"
+    },
+    {
+      "id": "rsa",
+      "name": "RSA-3072",
+      "shortName": "RSA",
+      "securityLevel": "Niveau 3",
+      "quantumResistant": false,
+      "publicKeySize": "398 octets",
+      "secretKeySize": "2743 octets",
+      "signatureSize": "384 octets",
+      "description": "Algorithme asymétrique classique basé sur le problème de factorisation des entiers.",
+      "features": [
+        "Basé sur la factorisation des entiers",
+        "Largement adopté",
+        "Tailles de clés importantes",
+        "Vulnérable aux attaques quantiques",
+        "Sécurité bien étudiée"
+      ],
+      "color": "from-orange-500 to-red-600"
+    },
+    {
+      "id": "ecdsa",
+      "name": "ECDSA-P256",
+      "shortName": "ECDSA",
+      "securityLevel": "Niveau 1",
+      "quantumResistant": false,
+      "publicKeySize": "65 octets",
+      "secretKeySize": "32 octets",
+      "signatureSize": "64 octets",
+      "description": "Algorithme à courbes elliptiques offrant des signatures compactes mais une faible résistance quantique.",
+      "features": [
+        "Basé sur les courbes elliptiques",
+        "Signatures compactes",
+        "Opérations rapides",
+        "Vulnérable aux attaques quantiques",
+        "Algorithme moderne le plus courant"
+      ],
+      "color": "from-purple-500 to-pink-600"
+    }
+  ]
+}

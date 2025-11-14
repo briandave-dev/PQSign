@@ -1,0 +1,18 @@
+{
+  "team": [
+    { "id": 1, "name": "Alice Chen", "role": "Project Lead", "specialty": "Cryptography" },
+    { "id": 2, "name": "Bob Thompson", "role": "Lead Developer", "specialty": "Backend Development" },
+    { "id": 3, "name": "Carol Martinez", "role": "UI/UX Designer", "specialty": "Interface Design" },
+    { "id": 4, "name": "David Kumar", "role": "Security Analyst", "specialty": "Vulnerability Assessment" },
+    { "id": 5, "name": "Emma Wilson", "role": "Frontend Developer", "specialty": "React Development" },
+    { "id": 6, "name": "Frank Johnson", "role": "DevOps Engineer", "specialty": "Infrastructure" },
+    { "id": 7, "name": "Grace Lee", "role": "Researcher", "specialty": "Post-Quantum Cryptography" },
+    { "id": 8, "name": "Henry Davis", "role": "QA Engineer", "specialty": "Testing & Validation" },
+    { "id": 9, "name": "Iris Patel", "role": "Documentation Lead", "specialty": "Technical Writing" },
+    { "id": 10, "name": "James Anderson", "role": "Systems Architect", "specialty": "Architecture Design" },
+    { "id": 11, "name": "Karen Brown", "role": "Security Officer", "specialty": "Risk Management" },
+    { "id": 12, "name": "Leo Martinez", "role": "Performance Engineer", "specialty": "Optimization" },
+    { "id": 13, "name": "Maya Gupta", "role": "Integration Lead", "specialty": "System Integration" },
+    { "id": 14, "name": "Nathan Wright", "role": "Compliance Officer", "specialty": "Regulatory Compliance" }
+  ]
+}

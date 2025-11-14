@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 255 255 255; /* pure white */
+    --foreground: 0 0 0; /* pure black */
+    --card: 255 255 255;
+    --card-foreground: 0 0 0;
+    --popover: 255 255 255;
+    --popover-foreground: 0 0 0;
+    --primary: 0 0 0; /* black accents */
+    --primary-foreground: 255 255 255; /* white text on black */
+    --secondary: 240 240 240; /* light gray secondary elements */
+    --secondary-foreground: 0 0 0;
+    --muted: 245 245 245; /* subtle background sections */
+    --muted-foreground: 60 60 60;
+    --accent: 20 20 20; /* slightly off-black for hover */
+    --accent-foreground: 255 255 255;
+    --destructive: 200 0 0;
+    --destructive-foreground: 255 255 255;
+    --border: 230 230 230;
+    --input: 230 230 230;
+    --ring: 0 0 0;
+    --chart-1: 0 0 0;
+    --chart-2: 100 100 100;
+    --chart-3: 180 180 180;
+    --chart-4: 40 40 40;
+    --chart-5: 80 80 80;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0 0; /* pure black */
+    --foreground: 255 255 255; /* pure white */
+    --card: 10 10 10;
+    --card-foreground: 255 255 255;
+    --popover: 10 10 10;
+    --popover-foreground: 255 255 255;
+    --primary: 255 255 255;
+    --primary-foreground: 0 0 0;
+    --secondary: 30 30 30;
+    --secondary-foreground: 255 255 255;
+    --muted: 20 20 20;
+    --muted-foreground: 200 200 200;
+    --accent: 255 255 255;
+    --accent-foreground: 0 0 0;
+    --destructive: 255 60 60;
+    --destructive-foreground: 255 255 255;
+    --border: 40 40 40;
+    --input: 40 40 40;
+    --ring: 255 255 255;
+    --chart-1: 255 255 255;
+    --chart-2: 180 180 180;
+    --chart-3: 100 100 100;
+    --chart-4: 60 60 60;
+    --chart-5: 200 200 200;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-['Space_Grotesk'];
+  }
+}
+
+@layer utilities {
+  .container-safe {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+}

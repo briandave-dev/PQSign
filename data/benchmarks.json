@@ -1,0 +1,56 @@
+{
+  "x86": {
+    "keyGeneration": [
+      { "algorithm": "Dilithium", "time": 245 },
+      { "algorithm": "RSA", "time": 856 },
+      { "algorithm": "ECDSA", "time": 12 }
+    ],
+    "signing": [
+      { "algorithm": "Dilithium", "time": 134 },
+      { "algorithm": "RSA", "time": 45 },
+      { "algorithm": "ECDSA", "time": 8 }
+    ],
+    "verification": [
+      { "algorithm": "Dilithium", "time": 156 },
+      { "algorithm": "RSA", "time": 5 },
+      { "algorithm": "ECDSA", "time": 23 }
+    ],
+    "keySizes": [
+      { "algorithm": "Dilithium", "publicKey": 1952, "secretKey": 4000 },
+      { "algorithm": "RSA", "publicKey": 398, "secretKey": 2743 },
+      { "algorithm": "ECDSA", "publicKey": 65, "secretKey": 32 }
+    ],
+    "signatureSizes": [
+      { "algorithm": "Dilithium", "size": 2420 },
+      { "algorithm": "RSA", "size": 384 },
+      { "algorithm": "ECDSA", "size": 64 }
+    ]
+  },
+  "arm": {
+    "keyGeneration": [
+      { "algorithm": "Dilithium", "time": 312 },
+      { "algorithm": "RSA", "time": 1124 },
+      { "algorithm": "ECDSA", "time": 18 }
+    ],
+    "signing": [
+      { "algorithm": "Dilithium", "time": 178 },
+      { "algorithm": "RSA", "time": 62 },
+      { "algorithm": "ECDSA", "time": 12 }
+    ],
+    "verification": [
+      { "algorithm": "Dilithium", "time": 201 },
+      { "algorithm": "RSA", "time": 8 },
+      { "algorithm": "ECDSA", "time": 31 }
+    ],
+    "keySizes": [
+      { "algorithm": "Dilithium", "publicKey": 1952, "secretKey": 4000 },
+      { "algorithm": "RSA", "publicKey": 398, "secretKey": 2743 },
+      { "algorithm": "ECDSA", "publicKey": 65, "secretKey": 32 }
+    ],
+    "signatureSizes": [
+      { "algorithm": "Dilithium", "size": 2420 },
+      { "algorithm": "RSA", "size": 384 },
+      { "algorithm": "ECDSA", "size": 64 }
+    ]
+  }
+}
