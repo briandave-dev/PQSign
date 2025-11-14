@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="container-safe py-8 md:py-12">
         {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
-            <h3 className="font-semibold mb-4">PQSign Dashboard</h3>
+            <h3 className="font-semibold mb-4">Signature Dashboard</h3>
             <p className="text-sm text-muted-foreground">
               Post-quantum cryptography implementation showcase using CRYSTALS-Dilithium.
             </p>
@@ -34,7 +34,7 @@ export default function Footer() {
         </div> */}
         <div className="border-t border-border pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © 2025 PQSign. Tous Droits Reservés.
+            © 2025 Signature. Tous Droits Reservés.
           </p>
           <p className="text-sm text-muted-foreground">
             Examen de Cryptographie | Groupe 1 GL

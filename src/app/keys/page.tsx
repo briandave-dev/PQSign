@@ -158,7 +158,7 @@ export class RSA3072 {
     const range = max - min;
     const bits = range.toString(2).length;
     const bytes = Math.ceil(bits / 8);
-    
+
     while (true) {
       const randBytes = crypto.getRandomValues(new Uint8Array(bytes));
       let rand = 0n;
@@ -203,7 +203,7 @@ export class RSA3072 {
     if (mod === 1n) return 0n;
     let result = 1n;
     base = base % mod;
-    
+
     while (exp > 0n) {
       if (exp % 2n === 1n) {
         result = (result * base) % mod;
@@ -211,7 +211,7 @@ export class RSA3072 {
       exp = exp >> 1n;
       base = (base * base) % mod;
     }
-    
+
     return result;
   }
 
@@ -249,16 +249,16 @@ export class RSA3072 {
   static generatePrime(bits: number): bigint {
     const min = 1n << BigInt(bits - 1);
     const max = (1n << BigInt(bits)) - 1n;
-    
+
     let attempts = 0;
     const maxAttempts = 1000;
-    
+
     while (attempts < maxAttempts) {
       attempts++;
       // Generate random odd number
       let candidate = this.randomBigInt(min, max);
       if (candidate % 2n === 0n) candidate += 1n;
-      
+
       // Quick checks for small primes
       let hasSmallFactor = false;
       const smallPrimes = [3n, 5n, 7n, 11n, 13n, 17n, 19n, 23n, 29n, 31n, 37n, 41n, 43n, 47n];
@@ -268,15 +268,15 @@ export class RSA3072 {
           break;
         }
       }
-      
+
       if (hasSmallFactor) continue;
-      
+
       // Miller-Rabin test
       if (this.isProbablyPrime(candidate, 10)) {
         return candidate;
       }
     }
-    
+
     throw new Error('Failed to generate prime after ' + maxAttempts + ' attempts');
   }
 
@@ -319,12 +319,12 @@ export class RSA3072 {
     const padded = new Uint8Array(keyLength);
     padded[0] = 0x00;
     padded[1] = 0x01;
-    
+
     // PS is 0xFF bytes
     for (let i = 2; i < 2 + psLen; i++) {
       padded[i] = 0xff;
     }
-    
+
     padded[2 + psLen] = 0x00;
     padded.set(digestInfo, 2 + psLen + 1);
     padded.set(hash, 2 + psLen + 1 + digestInfo.length);
@@ -334,7 +334,7 @@ export class RSA3072 {
     for (let i = 0; i < padded.length; i++) {
       result = (result << 8n) | BigInt(padded[i]);
     }
-    
+
     return result;
   }
 
@@ -349,34 +349,34 @@ export class RSA3072 {
     // This is a good balance between security demonstration and JS performance
     console.log('Generating prime p...');
     const p = this.generatePrime(512);
-    
+
     console.log('Generating prime q...');
     const q = this.generatePrime(512);
-    
+
     const n = p * q;
     const phi = (p - 1n) * (q - 1n);
-    
+
     // Standard public exponent
     const e = 65537n;
-    
+
     // Ensure e and phi are coprime
     if (this.gcd(e, phi) !== 1n) {
       throw new Error('e and phi are not coprime');
     }
-    
+
     console.log('Computing private exponent...');
     const d = this.modInverse(e, phi);
 
-    const publicKey = { 
-      n: n.toString(16), 
-      e: e.toString(16) 
+    const publicKey = {
+      n: n.toString(16),
+      e: e.toString(16)
     };
-    
-    const privateKey = { 
-      n: n.toString(16), 
-      d: d.toString(16), 
-      p: p.toString(16), 
-      q: q.toString(16) 
+
+    const privateKey = {
+      n: n.toString(16),
+      d: d.toString(16),
+      p: p.toString(16),
+      q: q.toString(16)
     };
 
     const end = performance.now();
@@ -398,7 +398,7 @@ export class RSA3072 {
   // ===============================================
   static async sign(message: string, privateKeyStr: string): Promise<RSASignature> {
     const start = performance.now();
-    
+
     const privateKey = JSON.parse(privateKeyStr);
     const n = BigInt('0x' + privateKey.n);
     const d = BigInt('0x' + privateKey.d);
@@ -408,7 +408,7 @@ export class RSA3072 {
 
     // Hash the message
     const hash = await this.sha256(message);
-    
+
     // Add PKCS#1 v1.5 padding
     const paddedHash = this.addPKCS1Padding(hash, keyLength);
 
@@ -416,13 +416,13 @@ export class RSA3072 {
     const signature = this.modPow(paddedHash, d, n);
 
     const end = performance.now();
-    
-    return { 
+
+    return {
       signature: signature.toString(16),
       message: message,
       algorithm: 'RSA-1024',
       signatureSize: signature.toString(16).length,
-      signingTime: Math.round(end - start) 
+      signingTime: Math.round(end - start)
     };
   }
 
@@ -430,12 +430,12 @@ export class RSA3072 {
   // Verification with PKCS#1 v1.5 padding
   // ===============================================
   static async verify(
-    message: string, 
-    signatureStr: string, 
+    message: string,
+    signatureStr: string,
     publicKeyStr: string
   ): Promise<RSAVerification> {
     const start = performance.now();
-    
+
     try {
       const publicKey = JSON.parse(publicKeyStr);
       const n = BigInt('0x' + publicKey.n);
@@ -450,7 +450,7 @@ export class RSA3072 {
 
       // Hash the message
       const hash = await this.sha256(message);
-      
+
       // Add PKCS#1 v1.5 padding to hash
       const expectedPadded = this.addPKCS1Padding(hash, keyLength);
 
@@ -458,9 +458,9 @@ export class RSA3072 {
       const isValid = decrypted === expectedPadded;
 
       const end = performance.now();
-      
-      return { 
-        isValid, 
+
+      return {
+        isValid,
         verificationTime: Math.round(end - start),
         details: {
           confidence: isValid ? 'Signature valide - 100%' : 'Signature invalide',
@@ -1040,37 +1040,58 @@ export default function CryptoOperations() {
           </CardHeader>
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* RSA */}
               <button
                 onClick={() => setSelectedAlgo('rsa')}
-                className={`p-4 rounded-lg border-2 transition-all ${selectedAlgo === 'rsa'
-                  ? 'border-indigo-600 bg-indigo-50'
-                  : 'border-gray-200 hover:border-indigo-300'
-                  }`}
+                className={`
+      p-4 rounded-lg transition-all bg-card text-card-foreground
+      ${selectedAlgo === 'rsa'
+                    ? 'border-2 border-primary bg-accent text-accent-foreground'
+                    : 'border border-border hover:border-primary'
+                  }
+    `}
               >
                 <h3 className="font-bold text-lg mb-1">RSA-3072</h3>
-                <p className="text-sm text-gray-600">Cryptographie classique, 128 bits de sécurité</p>
+                <p className="text-sm text-muted-foreground">
+                  Cryptographie classique, 128 bits de sécurité
+                </p>
               </button>
+
+              {/* ECDSA */}
               <button
                 onClick={() => setSelectedAlgo('ecdsa')}
-                className={`p-4 rounded-lg border-2 transition-all ${selectedAlgo === 'ecdsa'
-                  ? 'border-indigo-600 bg-indigo-50'
-                  : 'border-gray-200 hover:border-indigo-300'
-                  }`}
+                className={`
+      p-4 rounded-lg transition-all bg-card text-card-foreground
+      ${selectedAlgo === 'ecdsa'
+                    ? 'border-2 border-primary bg-accent text-accent-foreground'
+                    : 'border border-border hover:border-primary'
+                  }
+    `}
               >
                 <h3 className="font-bold text-lg mb-1">ECDSA-P256</h3>
-                <p className="text-sm text-gray-600">Courbe elliptique, compact et efficace</p>
+                <p className="text-sm text-muted-foreground">
+                  Courbe elliptique, compact et efficace
+                </p>
               </button>
+
+              {/* Dilithium */}
               <button
                 onClick={() => setSelectedAlgo('dilithium')}
-                className={`p-4 rounded-lg border-2 transition-all ${selectedAlgo === 'dilithium'
-                  ? 'border-indigo-600 bg-indigo-50'
-                  : 'border-gray-200 hover:border-indigo-300'
-                  }`}
+                className={`
+      p-4 rounded-lg transition-all bg-card text-card-foreground
+      ${selectedAlgo === 'dilithium'
+                    ? 'border-2 border-primary bg-accent text-accent-foreground'
+                    : 'border border-border hover:border-primary'
+                  }
+    `}
               >
                 <h3 className="font-bold text-lg mb-1">CRYSTALS-Dilithium</h3>
-                <p className="text-sm text-gray-600">Post-quantique, résistant aux ordinateurs quantiques</p>
+                <p className="text-sm text-muted-foreground">
+                  Post-quantique, résistant aux ordinateurs quantiques
+                </p>
               </button>
             </div>
+
           </CardContent>
         </Card>
 

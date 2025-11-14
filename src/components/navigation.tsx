@@ -30,7 +30,7 @@ export default function Navigation() {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-sm font-bold">
             PQ
           </div>
-          <span className="hidden sm:inline">PQSign</span>
+          <span className="hidden sm:inline">Signature</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-1">
@@ -48,7 +48,7 @@ export default function Navigation() {
             <Button
               variant="ghost"
               size="icon"
-              // onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             >
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>

@@ -7,7 +7,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from 'recharts';
 
@@ -40,11 +39,13 @@ export default function BenchmarkBarChart({
           <YAxis stroke="hsl(var(--muted-foreground))" style={{ fontSize: '12px' }} />
           <Tooltip
             contentStyle={{
-              backgroundColor: 'hsl(var(--card))',
+              backgroundColor: 'white', // White background for hover tooltip
+              color: 'hsl(var(--foreground))', // Text color from your theme
               border: '1px solid hsl(var(--border))',
               borderRadius: '8px',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
             }}
-            labelStyle={{ color: 'hsl(var(--foreground))' }}
+            labelStyle={{ fontWeight: 600, color: 'hsl(var(--foreground))' }}
           />
           <Bar dataKey={dataKey} fill={color} radius={[8, 8, 0, 0]} />
         </BarChart>

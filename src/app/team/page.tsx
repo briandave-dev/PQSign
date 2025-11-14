@@ -57,7 +57,7 @@ export default function TeamPage() {
         <div>
           <h1 className="text-4xl font-bold mb-2">Project Team</h1>
           <p className="text-muted-foreground text-lg">
-            Meet the experts behind PQSign Dashboard
+            Meet the experts behind Signature Dashboard
           </p>
         </div>
 
